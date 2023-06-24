@@ -197,17 +197,24 @@ impl Core {
                 };
                 if should_branch {
                     self.pc = (self.pc as i32 + read_imm_b(ins) as i32) as u32;
+                } else {
+                    self.pc += 4;
                 }
             }
             Op::Jal => {
                 self.cycles.add(1);
                 self.regs[rd(ins) as usize] = self.pc + 4;
-                self.pc = (self.pc as i32 + read_imm_j(ins) as i32) as u32;
+                let dest = (self.pc as i32 + read_imm_j(ins) as i32) as u32;
+                if self.pc == dest {
+                    println!("Infinite loop.");
+                    return false;
+                }
+                self.pc = dest;
             }
             Op::Jalr => {
                 self.cycles.add(1);
                 self.regs[rd(ins) as usize] = self.pc + 4;
-                self.pc = (self.reg(rs1(ins)) as i32 + read_imm_j(ins) as i32) as u32;
+                self.pc = (self.reg(rs1(ins)) as i32 + read_imm_i(ins) as i32) as u32;
             }
             Op::Load => {
                 let addr = (self.reg(rs1(ins)) as i32 + read_imm_i(ins) as i32) as u32;
