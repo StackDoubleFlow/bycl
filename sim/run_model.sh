@@ -1,3 +1,3 @@
 #/bin/bash
 
-cargo run --release -- $2 $(cat $1)
+cargo run -- $2 $(cat $1)
