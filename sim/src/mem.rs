@@ -1,11 +1,11 @@
 use crate::exec::Cycles;
 use clap::Args;
 
-struct LRU {
+struct Lru {
     list: Vec<usize>,
 }
 
-impl LRU {
+impl Lru {
     fn new(size: usize) -> Self {
         Self {
             list: (0..size).collect(),
@@ -34,14 +34,14 @@ struct Way {
 }
 
 struct Set {
-    lru: LRU,
+    lru: Lru,
     ways: Vec<Way>,
 }
 
 impl Set {
     fn new(config: &MemConfig) -> Self {
         Self {
-            lru: LRU::new(config.associativity),
+            lru: Lru::new(config.associativity),
             ways: vec![Default::default(); config.associativity],
         }
     }

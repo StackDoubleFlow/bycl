@@ -1,4 +1,5 @@
 #[derive(Debug, Clone, Copy)]
+#[allow(clippy::enum_variant_names)]
 pub enum Op {
     OpImm,
     Lui,
