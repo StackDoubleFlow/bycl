@@ -4,7 +4,7 @@
 use core::arch::global_asm;
 use core::panic::PanicInfo;
 
-global_asm!(include_str!("boot.s"));
+global_asm!(include_str!("boot.s"), sym entry);
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
@@ -18,8 +18,15 @@ fn do_thing() {
     }
 }
 
-#[no_mangle]
-fn cc_fw_entry() -> ! {
-    do_thing();
+fn entry() -> ! {
+    let (a, b, out) = unsafe {
+        (
+            *(0x100 as *const u32),
+            *(0x104 as *const u32),
+            &mut *(0x108 as *mut u32),
+        )
+    };
+    *out = a % b;
+    // do_thing();
     loop {}
 }
