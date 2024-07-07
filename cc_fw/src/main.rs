@@ -27,6 +27,6 @@ fn entry() -> ! {
         )
     };
     *out = a % b;
-    // do_thing();
+    do_thing();
     loop {}
 }
