@@ -1,4 +1,3 @@
-
 .globl _cc_entry
 
 _cc_entry:
