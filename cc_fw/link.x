@@ -8,5 +8,5 @@ SECTIONS
   .data : { *(.data*) }
   .rodata : { *(.rodata*) }
   .bss : { *(.bss*) }
-  /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) }
+  /DISCARD/ : { *(.comment) *(.gnu*) *(.note*) *(.eh_frame*) *(.interp) }
 }
