@@ -5,6 +5,7 @@ SECTIONS
     *(.text._cc_entry)
     *(.text.*)
   }
+  . = 0x400;
   .data : { *(.data*) }
   .rodata : { *(.rodata*) }
   .bss : { *(.bss*) }
