@@ -13,7 +13,7 @@ mkdir -p $BUILD_DIR
 $CC -Wl,-T../cc_fw/link.x -nostartfiles -D__BYCL__ -Os -flto c_bootstrap.S $1 -o build/prog.elf
 
 # For debugging
-$OBJDUMP -d build/prog.elf --disassembler-color=terminal --visualize-jumps=color
+$OBJDUMP -d build/prog.elf --disassembler-color=extended --visualize-jumps=extended-color
 
 $OBJCOPY -O binary $BUILD_DIR/prog.elf $BUILD_DIR/prog.bin
 
