@@ -85,7 +85,7 @@ impl Mmio {
 
     pub fn store(&mut self, idx: usize, val: u32) {
         if let Some(port) = &self.ports[idx] {
-            port.tx.send(val);
+            port.tx.send(val).unwrap();
         }
     }
 }
