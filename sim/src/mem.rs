@@ -41,8 +41,8 @@ struct Set {
 impl Set {
     fn new(config: &MemConfig) -> Self {
         Self {
-            lru: Lru::new(config.associativity),
-            ways: vec![Default::default(); config.associativity],
+            lru: Lru::new(config.l1_associativity),
+            ways: vec![Default::default(); config.l1_associativity],
         }
     }
 
@@ -69,16 +69,16 @@ struct Cache {
 
 impl Cache {
     fn new(config: &MemConfig) -> Self {
-        let set_size = config.associativity * config.line_size;
+        let set_size = config.l1_associativity * config.l1_line_size;
         assert_eq!(
-            config.cache_size % set_size,
+            config.l1_size % set_size,
             0,
             "Cache size not divisible by set size"
         );
-        let num_sets = config.cache_size / set_size;
+        let num_sets = config.l1_size / set_size;
         Self {
             sets: (0..num_sets).map(|_| Set::new(config)).collect(),
-            line_bits: config.line_size.ilog2(),
+            line_bits: config.l1_line_size.ilog2(),
             set_bits: num_sets.ilog2(),
         }
     }
@@ -126,7 +126,7 @@ impl Mem {
         }
     }
 
-    pub fn lw(&mut self, cycles: &mut Cycles, addr: u32) -> u32 {
+    pub fn load(&mut self, cycles: &mut Cycles, addr: u32) -> u32 {
         self.dcache_access(cycles, addr);
         let addr = addr as usize;
         self.data[addr] as u32
@@ -135,36 +135,13 @@ impl Mem {
             | ((self.data[addr + 3] as u32) << 24)
     }
 
-    pub fn lh(&mut self, cycles: &mut Cycles, addr: u32) -> u16 {
-        self.dcache_access(cycles, addr);
-        let addr = addr as usize;
-        self.data[addr] as u16 | ((self.data[addr + 1] as u16) << 8)
-    }
-
-    pub fn lb(&mut self, cycles: &mut Cycles, addr: u32) -> u8 {
-        self.dcache_access(cycles, addr);
-        self.data[addr as usize]
-    }
-
-    pub fn sw(&mut self, cycles: &mut Cycles, addr: u32, val: u32) {
+    pub fn store(&mut self, cycles: &mut Cycles, addr: u32, val: u32) {
         self.dcache_access(cycles, addr);
         let addr = addr as usize;
         self.data[addr] = (val & 0x000000FF) as u8;
         self.data[addr + 1] = ((val & 0x0000FF00) >> 8) as u8;
         self.data[addr + 2] = ((val & 0x00FF0000) >> 16) as u8;
         self.data[addr + 3] = ((val & 0xFF000000) >> 24) as u8;
-    }
-
-    pub fn sh(&mut self, cycles: &mut Cycles, addr: u32, val: u16) {
-        self.dcache_access(cycles, addr);
-        let addr = addr as usize;
-        self.data[addr] = (val & 0x00FF) as u8;
-        self.data[addr + 1] = ((val & 0xFF00) >> 8) as u8;
-    }
-
-    pub fn sb(&mut self, cycles: &mut Cycles, addr: u32, val: u8) {
-        self.dcache_access(cycles, addr);
-        self.data[addr as usize] = val;
     }
 
     pub fn load_ins(&mut self, cycles: &mut Cycles, pc: u32) -> u32 {
@@ -185,11 +162,11 @@ pub struct MemConfig {
     #[arg(long)]
     mem_size: usize,
     #[arg(long)]
-    cache_size: usize,
+    l1_size: usize,
     #[arg(long)]
-    line_size: usize,
+    l1_line_size: usize,
     #[arg(long)]
-    associativity: usize,
+    l1_associativity: usize,
     #[arg(long)]
     l1d_hit_cycles: usize,
     #[arg(long)]

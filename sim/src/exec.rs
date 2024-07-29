@@ -1,5 +1,7 @@
 use crate::mem::{Mem, MemConfig};
 use crate::op::Op;
+use crate::io::Mmio;
+use clap::Args;
 
 #[derive(Default)]
 pub struct Cycles {
@@ -64,18 +66,22 @@ fn funct7(inst: u32) -> u32 {
 
 pub struct Core {
     mem: Mem,
+    mmio: Mmio,
     cycles: Cycles,
     pc: u32,
     regs: [u32; 32],
+    config: CoreConfig,
 }
 
 impl Core {
-    pub fn new(fw_data: &[u8], mem_config: MemConfig) -> Self {
+    pub fn new(fw_data: &[u8], mem_config: MemConfig, core_config: CoreConfig, mmio: Mmio) -> Self {
         Self {
             mem: Mem::new(fw_data, mem_config),
             cycles: Default::default(),
             pc: 0,
             regs: [0; 32],
+            mmio,
+            config: core_config
         }
     }
 
@@ -83,6 +89,28 @@ impl Core {
         match id {
             0 => 0,
             _ => self.regs[id as usize],
+        }
+    }
+
+    fn load_word(&mut self, addr: u32) -> u32 {
+        let addr = addr & 0x7FFFFFFC;
+        let is_port = addr & 0x80000000 != 0;
+        if is_port {
+            self.mem.load(&mut self.cycles, addr)
+        } else {
+            self.cycles.add(1);
+            self.mmio.load((addr as usize >> 2) & 0xF)
+        }
+    }
+
+    fn store_word(&mut self, addr: u32, val: u32) {
+        let addr = addr & 0x7FFFFFFC;
+        let is_port = addr & 0x80000000 != 0;
+        if is_port {
+            self.mem.store(&mut self.cycles, addr, val);
+        } else {
+            self.cycles.add(1);
+            self.mmio.store((addr as usize >> 2) & 0xF, val)
         }
     }
 
@@ -218,24 +246,61 @@ impl Core {
             }
             Op::Load => {
                 let addr = (self.reg(rs1(ins)) as i32 + read_imm_i(ins) as i32) as u32;
-                self.regs[rd(ins) as usize] = match funct3(ins) {
-                    0b000 => self.mem.lb(&mut self.cycles, addr) as u32,
-                    0b001 => self.mem.lh(&mut self.cycles, addr) as u32,
-                    0b010 => self.mem.lw(&mut self.cycles, addr),
-                    0b100 => self.mem.lb(&mut self.cycles, addr) as i8 as i32 as u32,
-                    0b101 => self.mem.lh(&mut self.cycles, addr) as i16 as i32 as u32,
-                    width => panic!("Invalid width for load: {width:03b}"),
+                let signed = funct3(ins) & 0b100 != 0;
+                let size = funct3(ins) & 0b11;
+
+                let sub_addr = addr & 0x00000003;
+                let word = self.load_word(addr);
+
+                let res = match size {
+                    0b00 => {
+                        self.cycles.add(1);
+                        let shift = sub_addr * 8;
+                        let data = ((word >> shift) & 0xFF) as u8;
+                        if signed { data as i8 as u32 } else { data as u32 }
+                    }
+                    0b01 => {
+                        self.cycles.add(1);
+                        assert_eq!(sub_addr & 0b1, 0, "Misaligned half-word load");
+                        let shift = sub_addr * 8;
+                        (word >> shift) & 0xFFFF
+                    }
+                    0b10 => {
+                        assert_eq!(sub_addr & 0b11, 0, "Misaligned full-word load");
+                        word
+                    }
+                    _ => panic!("Invalid width for load: {size:#02b}")
                 };
+                self.regs[rd(ins) as usize] = res;
                 self.pc += 4;
             }
             Op::Store => {
                 let addr = (self.reg(rs1(ins)) as i32 + read_imm_s(ins) as i32) as u32;
+                let size = funct3(ins) & 0b11;
                 let src = self.reg(rs2(ins));
-                match funct3(ins) {
-                    0b000 => self.mem.sb(&mut self.cycles, addr, src as u8),
-                    0b001 => self.mem.sh(&mut self.cycles, addr, src as u16),
-                    0b010 => self.mem.sw(&mut self.cycles, addr, src),
-                    width => panic!("Invalid width for load: {width:03b}"),
+
+                let sub_addr = addr & 0x00000003;
+                let orig = if size != 0b10 {
+                    self.load_word(addr)
+                } else {
+                    0
+                };
+
+                match size {
+                    0b00 => {
+                        let shift = sub_addr * 8;
+                        let orig = orig & !(0xFF << shift);
+                        let val = orig | (src << shift);
+                        self.store_word(addr, val);
+                    }
+                    0b01 => {
+                        let shift = sub_addr * 8;
+                        let orig = orig & !(0xFFFF << shift);
+                        let val = orig | (src << shift);
+                        self.store_word(addr, val);
+                    }
+                    0b10 => self.store_word(addr, src),
+                    width => panic!("Invalid width for store: {width:#02b}"),
                 };
                 self.pc += 4;
             }
@@ -247,3 +312,6 @@ impl Core {
         true
     }
 }
+
+#[derive(Args, Debug)]
+pub struct CoreConfig {}

@@ -1,7 +1,7 @@
 --mem-size 16384
---cache-size 1024
---line-size 128
---associativity 2
---l1d-hit-cycles 3
+--l1-size 1024
+--l1-line-size 128
+--l1-associativity 8
+--l1d-hit-cycles 1
 --l1d-miss-cycles 20
 --l1i-miss-cycles 20
