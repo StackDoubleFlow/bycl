@@ -12,7 +12,9 @@ mkdir -p $BUILD_DIR
 $CC -Wl,-T../cc_fw/link.x -nostdlib $1 -o build/prog.elf
 
 # For debugging
-$OBJDUMP -d build/prog.elf --disassembler-color=terminal --visualize-jumps=color
+if ! $NO_DEBUG; then
+    $OBJDUMP -d build/prog.elf --disassembler-color=terminal --visualize-jumps=color
+fi
 
 $OBJCOPY -O binary $BUILD_DIR/prog.elf $BUILD_DIR/prog.bin
 

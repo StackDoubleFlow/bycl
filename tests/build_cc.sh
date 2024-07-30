@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bash
 
 BUILD_DIR=./build
@@ -10,10 +9,12 @@ BYCLC=../schem_gen/target/debug/byclc
 
 mkdir -p $BUILD_DIR
 
-$CC -Wl,-T../cc_fw/link.x -nostartfiles -D__BYCL__ -Os -flto c_bootstrap.S $1 -o build/prog.elf
+$CC -Wl,-T../cc_fw/link.x -nostartfiles -D__BYCL__ -Os -flto c_bootstrap.S $1 -g -o build/prog.elf
 
 # For debugging
-$OBJDUMP -d build/prog.elf --disassembler-color=extended --visualize-jumps=extended-color
+if ! $NO_DEBUG; then
+    $OBJDUMP -d build/prog.elf --disassembler-color=terminal --visualize-jumps=color
+fi
 
 $OBJCOPY -O binary $BUILD_DIR/prog.elf $BUILD_DIR/prog.bin
 
