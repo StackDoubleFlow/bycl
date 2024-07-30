@@ -137,7 +137,7 @@ impl Core {
                             rs1_val.overflowing_sub(rs2_val).0
                         }
                     }
-                    0b001 => rs1_val << rs2_val,
+                    0b001 => rs1_val.checked_shl(rs2_val & 0b11111).unwrap_or(0),
                     0b010 => {
                         if (rs1_val as i32) < (rs2_val as i32) {
                             1
@@ -154,10 +154,11 @@ impl Core {
                     }
                     0b100 => rs1_val ^ rs2_val,
                     0b101 => {
+                        let shamt = rs2_val & 0b11111;
                         if funct7(ins) == 0 {
-                            rs1_val >> rs2_val
+                            rs1_val.checked_shr(shamt).unwrap_or(0)
                         } else {
-                            ((rs1_val as i32) >> rs2_val) as u32
+                            ((rs1_val as i32) >> shamt) as u32
                         }
                     }
                     0b110 => rs1_val | rs2_val,
@@ -189,10 +190,11 @@ impl Core {
                     }
                     0b100 => rs1_val ^ imm,
                     0b101 => {
+                        let shamt = rs2(ins) & 0b11111;
                         if funct7(ins) == 0 {
-                            rs1_val >> rs2(ins)
+                            rs1_val.checked_shr(shamt).unwrap_or(0)
                         } else {
-                            ((rs1_val as i32) >> rs2(ins)) as u32
+                            ((rs1_val as i32) >> shamt) as u32
                         }
                     }
                     0b110 => rs1_val | imm,
