@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+INSTALL_DIR=$(realpath "$(dirname "$0")/install")
+
 cd riscv-gnu-toolchain
-./configure --prefix=$(dirname "$0")/install --with-arch=rv32i --with-abi=ilp32 --enable-multilib
+echo $INSTALL_DIR
+./configure --prefix=$INSTALL_DIR --with-arch=rv32i --with-abi=ilp32 --enable-multilib
 make -j$(nproc)
