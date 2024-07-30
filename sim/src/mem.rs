@@ -84,7 +84,7 @@ impl Cache {
     }
 
     fn access(&mut self, addr: u32) -> CacheResult {
-        let set_idx = (addr >> self.line_bits) & ((!0u32).overflowing_shr(32 - self.set_bits).0);
+        let set_idx = (addr >> self.line_bits) & ((!0u32).checked_shr(32 - self.set_bits).unwrap_or(0));
         let tag = addr >> (self.line_bits + self.set_bits);
         self.sets[set_idx as usize].access(tag)
     }
