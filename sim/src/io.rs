@@ -1,8 +1,8 @@
+use std::sync::mpsc::{channel, Receiver, Sender};
 use winit::dpi::PhysicalSize;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::EventLoop;
 use winit::window::WindowBuilder;
-use std::sync::mpsc::{channel, Sender, Receiver};
 
 const PIXEL_WIDTH: u32 = 256;
 const PIXEL_HEIGHT: u32 = 256;
@@ -51,7 +51,7 @@ impl Mmio {
         }
         Self {
             ports,
-            port_data: vec![0; num_ports]
+            port_data: vec![0; num_ports],
         }
     }
 
@@ -74,7 +74,6 @@ impl Mmio {
                 while let Ok(new_data) = port.rx.try_recv() {
                     self.port_data[idx] = new_data;
                 }
-
             }
         }
     }
