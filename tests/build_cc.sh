@@ -12,7 +12,7 @@ mkdir -p $BUILD_DIR
 $CC -Wl,-T../cc_fw/link.x -nostartfiles -D__BYCL__ -Os -flto c_bootstrap.S $1 -g -o build/prog.elf
 
 # For debugging
-if ! $NO_DEBUG; then
+if [[ -z $NO_DEBUG ]]; then
     $OBJDUMP -d build/prog.elf --disassembler-color=terminal --visualize-jumps=color
 fi
 
