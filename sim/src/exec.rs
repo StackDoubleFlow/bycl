@@ -221,9 +221,9 @@ impl Core {
                     0b000 => src1 == src2,
                     0b001 => src1 != src2,
                     0b100 => (src1 as i32) < (src2 as i32),
-                    0b101 => (src1 as i32) > (src2 as i32),
+                    0b101 => (src1 as i32) >= (src2 as i32),
                     0b110 => src1 < src2,
-                    0b111 => src1 > src2,
+                    0b111 => src1 >= src2,
                     cond => panic!("Invalid branch condition: {cond:03b}"),
                 };
                 if should_branch {
