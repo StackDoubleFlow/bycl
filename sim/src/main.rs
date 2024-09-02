@@ -1,10 +1,11 @@
 mod exec;
+mod io;
 mod mem;
 mod op;
-mod io;
 
 use clap::Parser;
 use exec::{Core, CoreConfig};
+use io::ColumnDisplay;
 use mem::MemConfig;
 use std::{fs, thread};
 
@@ -24,11 +25,17 @@ fn main() {
         let fw_data = fs::read(args.fw_file).unwrap();
         println!("Firmware size: {} bytes", fw_data.len());
 
-        let mmio = io::Mmio::new(16);
+        let mut mmio = io::Mmio::new(16);
+        let mut display = ColumnDisplay::new(mmio.attach_port(0), mmio.attach_port(1), 32);
 
         let mut core = Core::new(&fw_data, args.mem_config, args.core_config, mmio);
-        while core.execute_one() {}
+        while core.execute_one() {
+            display.update();
+        }
     });
 
-    io::init();
+    loop {
+        std::thread::yield_now();
+    }
+    // io::init();
 }

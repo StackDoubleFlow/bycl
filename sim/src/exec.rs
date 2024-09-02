@@ -115,6 +115,7 @@ impl Core {
     }
 
     pub fn execute_one(&mut self) -> bool {
+        self.mmio.update_ports();
         let ins = self.mem.load_ins(&mut self.cycles, self.pc);
         let op = Op::from_opcode(ins & 0b1111111);
         println!(
