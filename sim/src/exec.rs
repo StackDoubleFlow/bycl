@@ -159,7 +159,7 @@ impl Core {
                         if funct7(ins) == 0 {
                             rs1_val.checked_shr(shamt).unwrap_or(0)
                         } else {
-                            ((rs1_val as i32) >> shamt) as u32
+                            (rs1_val as i32).checked_shr(shamt).unwrap_or(0) as u32
                         }
                     }
                     0b110 => rs1_val | rs2_val,
@@ -193,7 +193,7 @@ impl Core {
                     0b101 => {
                         let shamt = rs2(ins) & 0b11111;
                         if funct7(ins) == 0 {
-                            rs1_val.checked_shr(shamt).unwrap_or(0)
+                            rs1_val >> shamt
                         } else {
                             ((rs1_val as i32) >> shamt) as u32
                         }
