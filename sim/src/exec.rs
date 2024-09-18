@@ -93,24 +93,24 @@ impl Core {
     }
 
     fn load_word(&mut self, addr: u32) -> u32 {
-        let addr = addr & 0x7FFFFFFC;
         let is_port = addr & 0x80000000 != 0;
+        let addr = addr & 0x7FFFFFFC;
         if is_port {
-            self.mem.load(&mut self.cycles, addr)
-        } else {
             self.cycles.add(1);
             self.mmio.load((addr as usize >> 2) & 0xF)
+        } else {
+            self.mem.load(&mut self.cycles, addr)
         }
     }
 
     fn store_word(&mut self, addr: u32, val: u32) {
-        let addr = addr & 0x7FFFFFFC;
         let is_port = addr & 0x80000000 != 0;
+        let addr = addr & 0x7FFFFFFC;
         if is_port {
-            self.mem.store(&mut self.cycles, addr, val);
-        } else {
             self.cycles.add(1);
             self.mmio.store((addr as usize >> 2) & 0xF, val)
+        } else {
+            self.mem.store(&mut self.cycles, addr, val);
         }
     }
 
