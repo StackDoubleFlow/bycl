@@ -1,8 +1,10 @@
 #ifdef __BYCL__
 
-static inline void write(unsigned int data, unsigned char column) {
-  *(int *)0x8000000 = data;
-  *(unsigned char *)0x8000004 = column;
+static inline void write(unsigned int data, unsigned int column) {
+  int volatile *data_ptr = (int *) 0x80000000;
+  int volatile *col_ptr = (int *) 0x80000004;
+  *data_ptr = data;
+  *col_ptr = column;
 }
 
 #else
@@ -11,7 +13,7 @@ static inline void write(unsigned int data, unsigned char column) {
 
 unsigned char display[32][32];
 
-static inline void write(unsigned int data, unsigned char column) {
+static inline void write(unsigned int data, unsigned int column) {
   for (int i = 0; i < 32; ++i) {
     display[i][column] = ((data & 0x80000000) != 0);
     data <<= 1;
