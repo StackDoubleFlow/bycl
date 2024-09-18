@@ -6,4 +6,4 @@ FW_PATH="$2"
 
 shift 2
 
-cargo run --manifest-path $SIM_ROOT/Cargo.toml -- $FW_PATH $MODEL_ARGS $@
+cargo run --release --manifest-path $SIM_ROOT/Cargo.toml -- $FW_PATH $MODEL_ARGS $@
