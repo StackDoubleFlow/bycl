@@ -314,6 +314,10 @@ impl Core {
         }
         true
     }
+
+    pub fn cycle_count(&self) -> usize {
+        self.cycles.get()
+    }
 }
 
 #[derive(Args, Debug)]

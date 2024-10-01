@@ -32,6 +32,8 @@ fn main() {
         while core.execute_one() {
             display.update();
         }
+
+        println!("Completed in {} cycles", core.cycle_count());
     });
 
     loop {
