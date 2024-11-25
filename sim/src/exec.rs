@@ -244,8 +244,9 @@ impl Core {
             }
             Op::Jalr => {
                 self.cycles.add(1);
+                let dest = (self.reg(rs1(ins)) as i32 + read_imm_i(ins) as i32) as u32;
                 self.regs[rd(ins) as usize] = self.pc + 4;
-                self.pc = (self.reg(rs1(ins)) as i32 + read_imm_i(ins) as i32) as u32;
+                self.pc = dest;
             }
             Op::Load => {
                 let addr = (self.reg(rs1(ins)) as i32 + read_imm_i(ins) as i32) as u32;
