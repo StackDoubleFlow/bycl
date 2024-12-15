@@ -19,3 +19,11 @@ fi
 $OBJCOPY -O binary $BUILD_DIR/prog.elf $BUILD_DIR/prog.bin
 
 $BYCLC $BUILD_DIR/prog.bin -o $BUILD_DIR/prog.schem
+
+if [[ $ORE_ADMIN ]]; then
+    sftp crapo <<EOF
+cd /home/mcadmin/actual_schematics/$ORE_ADMIN
+put $BUILD_DIR/prog.schem
+exit
+EOF
+fi
