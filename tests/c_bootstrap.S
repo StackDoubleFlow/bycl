@@ -4,4 +4,6 @@
 
 _cc_entry:
     li sp, 0x800
-    j entry
+    call entry
+loop:
+    j loop

@@ -80,10 +80,8 @@ int main() {
 
 #ifdef __BYCL__
 
-[[noreturn]] void entry() {
+void entry() {
   main();
-  while (1) {
-  }
 }
 
 #endif

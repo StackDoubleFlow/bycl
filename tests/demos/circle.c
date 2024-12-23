@@ -6,7 +6,7 @@ static inline void write(unsigned int data, unsigned int column) {
   *col_ptr = column;
 }
 
-[[noreturn]] void entry() {
+void entry() {
   const float radius = 16;
   const float x_pos = 20;
   const float y_pos = 15;
@@ -21,8 +21,5 @@ static inline void write(unsigned int data, unsigned int column) {
       }
     }
     write(data, col);
-  }
-
-  while (1) {
   }
 }

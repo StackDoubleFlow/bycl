@@ -12,7 +12,7 @@ int mul(int a, int b) {
   return (a * b) >> FIXED_POINT;
 }
 
-[[noreturn]] [[gnu::naked]] void entry() {
+[[gnu::naked]] void entry() {
   // Just don't worry about it
   asm volatile ("add sp, sp, -16");
 
@@ -49,6 +49,4 @@ int mul(int a, int b) {
     }
     write(col, px);
   }
-
-  while (1) {}
 }

@@ -6,7 +6,7 @@ static inline void write(unsigned int data, unsigned int column) {
   *col_ptr = column;
 }
 
-[[noreturn]] void entry() {
+void entry() {
   const unsigned int pattern = 0x55555555;
   for (int col = 0; col < 32; col++) {
     unsigned int data = pattern;
@@ -14,8 +14,5 @@ static inline void write(unsigned int data, unsigned int column) {
       data <<= 1;
     }
     write(data, col);
-  }
-
-  while (1) {
   }
 }
